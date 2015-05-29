@@ -17,14 +17,17 @@ def run(command, filename):
 
     while True:
         output = proc.stdout.readline() 
+        if output.find('Select failed!: Invalid argument')>=0:
+            file.close()
+            subprocess.call(["killall", "discode"])
+            run(command, filename)
+            return
         if output.find('SequenceRGB: end of sequence')>=0:
             print "Koniec!!!"
-            proc.kill()
-            break
+            subprocess.call(["killall", "discode"])
+            return
         print output.rstrip()
         file.write(output)
-#    remainder = proc.communicate()[0]
-#    print remainder   
     file.close()
     
 #edytuje parametry w tasku filename tylko w pierwszym executorze
