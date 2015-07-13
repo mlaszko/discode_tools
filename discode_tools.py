@@ -4,10 +4,15 @@
 import subprocess
 from xml.dom import minidom
 
-#uruchamia komendę command
+#uruchamia zadanie discode podane w parametrze task w formacie DCL:task
+#zabija wszystkie discode po zakończeniu sekwencji
 #wyjście zapisuje do pliku filename
-def run(command, filename):
+def run_sequence(task, filename, info = '', log_level = 0):
+    command = 'discode -T' + task + ' -L' + str(log_level)
     file = open(filename, 'w')
+    if info != '':
+        file.write(info)
+        file.write('\n------------------------------------------------------\n')
     proc = subprocess.Popen(command, 
                             shell=True,
                             stdin=subprocess.PIPE,
@@ -17,17 +22,18 @@ def run(command, filename):
 
     while True:
         output = proc.stdout.readline() 
+        print output.rstrip()
+        file.write(output)
         if output.find('Select failed!: Invalid argument')>=0:
             file.close()
             subprocess.call(["killall", "discode"])
             run(command, filename)
             return
-        if output.find('SequenceRGB: end of sequence')>=0:
+        if output.find(' End of sequence')>=0:
             print "Koniec!!!"
+            file.close()
             subprocess.call(["killall", "discode"])
             return
-        print output.rstrip()
-        file.write(output)
     file.close()
     
 #edytuje parametry w tasku filename tylko w pierwszym executorze
