@@ -27,7 +27,7 @@ def run_sequence(task, filename, info = '', log_level = 0):
         if output.find('Select failed!: Invalid argument')>=0:
             file.close()
             subprocess.call(["killall", "discode"])
-            run(command, filename)
+            run_sequence(command, filename)
             return
         if output.find(' End of sequence')>=0:
             print "Koniec!!!"
@@ -36,23 +36,24 @@ def run_sequence(task, filename, info = '', log_level = 0):
             return
     file.close()
     
-#edytuje parametry w tasku filename tylko w pierwszym executorze
+#edytuje parametry w tasku filename
 #params to slownik z nazwami i wartosciami parametrow
 def edit_task(filename, params):
     DOMTree = minidom.parse(filename)
     cNodes = DOMTree.childNodes
     subtasks = cNodes[0].getElementsByTagName("Subtasks")
     subtask = subtasks[0].getElementsByTagName("Subtask")
-    executor = subtask[0].getElementsByTagName("Executor")
-    components = executor[0].getElementsByTagName("Component")  #komponenty w pierwszym executorze
-    for i in components:
-        #print i.getAttribute("name") #component name
-        for j in i.getElementsByTagName("param"):
-            #print j.getAttribute("name") + ' = ' + j.childNodes[0].toxml()
-            if j.getAttribute("name") in params:
-                j.childNodes[0].nodeValue = params[j.getAttribute("name")]
-        #print ' '
-    #print DOMTree.toxml()
+    executors = subtask[0].getElementsByTagName("Executor")
+    for e in executors:
+        components = e.getElementsByTagName("Component")  #komponenty w executorze
+        for i in components:
+            #print i.getAttribute("name") #component name
+            for j in i.getElementsByTagName("param"):
+                #print j.getAttribute("name") + ' = ' + j.childNodes[0].toxml()
+                if j.getAttribute("name") in params:
+                    j.childNodes[0].nodeValue = params[j.getAttribute("name")]
+            #print ' '
+        #print DOMTree.toxml()
     
     file = open(filename, 'w')
     file.write(DOMTree.toxml())
