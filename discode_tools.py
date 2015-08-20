@@ -27,7 +27,7 @@ def run_sequence(task, filename, info = '', log_level = 0):
         if output.find('Select failed!: Invalid argument')>=0:
             file.close()
             subprocess.call(["killall", "discode"])
-            run_sequence(command, filename)
+            run_sequence(task, filename, info)
             return
         if output.find(' End of sequence')>=0:
             print "Koniec!!!"
